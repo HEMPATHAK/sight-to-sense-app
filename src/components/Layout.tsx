@@ -8,6 +8,14 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from '@/context/AuthContext';
 import { Menu, User, Building2, Key, LogOut } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -72,6 +80,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       className="w-full justify-start" 
                       onClick={() => {
                         setIsSheetOpen(false);
+                        navigate('/dashboard');
+                      }}
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-start" 
+                      onClick={() => {
+                        setIsSheetOpen(false);
                         navigate('/profile');
                       }}
                     >
@@ -81,17 +100,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                         <Building2 className="mr-2 h-4 w-4" />
                       )}
                       Profile
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start"
-                      onClick={() => {
-                        setIsSheetOpen(false);
-                        navigate('/change-password');
-                      }}
-                    >
-                      <Key className="mr-2 h-4 w-4" />
-                      Change Password
                     </Button>
                     <Button 
                       variant="ghost" 
@@ -108,14 +116,39 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
               </SheetContent>
             </Sheet>
-            <span className="font-semibold text-lg hidden md:inline-block">Smart Blind Stick</span>
+            <span 
+              className="font-semibold text-lg hidden md:inline-block cursor-pointer"
+              onClick={() => navigate('/dashboard')}
+            >
+              Smart Blind Stick
+            </span>
           </div>
           
           <div className="flex items-center gap-2">
             <span className="font-medium mr-2 hidden md:inline-block">Hi, {user.name}</span>
-            <Avatar className="h-9 w-9">
-              <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-            </Avatar>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="h-9 w-9 cursor-pointer">
+                  <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/profile')}>
+                  {user.mode === 'personal' ? (
+                    <User className="mr-2 h-4 w-4" />
+                  ) : (
+                    <Building2 className="mr-2 h-4 w-4" />
+                  )}
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

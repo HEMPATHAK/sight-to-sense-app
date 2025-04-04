@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 import MemberView from "./pages/MemberView";
 import AddMemberForm from "./components/AddMemberForm";
 import NotFound from "./pages/NotFound";
+import Index from "./pages/Index";
 
 const queryClient = new QueryClient();
 
@@ -60,7 +61,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<ModeSelector />} />
+            <Route path="/" element={<Index />} />
+            <Route path="/mode-selector" element={<ModeSelector />} />
             <Route path="/login" element={<LoginForm />} />
             <Route path="/register" element={<RegisterForm />} />
             
