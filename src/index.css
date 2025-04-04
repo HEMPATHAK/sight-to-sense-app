@@ -23,7 +23,7 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 262 95% 59%;
+    --accent: 315 86% 61%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -55,7 +55,7 @@
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 262 95% 59%;
+    --accent: 315 86% 61%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -75,6 +75,7 @@
   body {
     @apply bg-blindapp-background text-blindapp-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    background-image: linear-gradient(109.6deg, rgba(223,234,247,0.3) 11.2%, rgba(244,248,252,0.3) 91.1%);
   }
 
   /* Accessibility improvements */
@@ -90,7 +91,11 @@
 
 @layer components {
   .blindapp-card {
-    @apply bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden;
+    @apply bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300;
+  }
+
+  .blindapp-gradient-card {
+    @apply bg-gradient-to-br from-white to-blindapp-soft border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300;
   }
 
   .blindapp-button {
@@ -116,6 +121,10 @@
     ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium
     placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2
     focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  
+  .blindapp-glass {
+    @apply bg-white/70 backdrop-blur-sm border border-white/50 rounded-xl shadow-sm;
   }
 }
 

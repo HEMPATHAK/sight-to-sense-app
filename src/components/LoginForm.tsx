@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from '@/context/AuthContext';
-import { ArrowLeft, LockIcon, MailIcon } from 'lucide-react';
+import { ArrowLeft, LockIcon, MailIcon, ShieldIcon } from 'lucide-react';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -50,19 +50,22 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="container max-w-md mx-auto px-4 py-8">
+    <div className="container max-w-md mx-auto px-4 py-8 min-h-screen bg-gradient-to-br from-blindapp-background via-blindapp-background to-blindapp-soft flex flex-col justify-center">
       <Button 
         variant="ghost" 
-        className="mb-6 pl-0 flex items-center gap-2"
+        className="mb-6 pl-0 flex items-center gap-2 absolute top-4 left-4"
         onClick={() => navigate('/')}
       >
         <ArrowLeft size={16} />
         Back to Mode Selection
       </Button>
       
-      <Card>
+      <Card className="blindapp-gradient-card shadow-lg">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">
+          <div className="mx-auto mb-2">
+            <ShieldIcon className="h-12 w-12 text-blindapp-primary" />
+          </div>
+          <CardTitle className="text-2xl text-center bg-clip-text text-transparent bg-gradient-purple">
             Login
           </CardTitle>
           <CardDescription className="text-center">
@@ -81,7 +84,7 @@ const LoginForm = () => {
                   id="email"
                   type="email"
                   placeholder="you@example.com"
-                  className="pl-10"
+                  className="pl-10 border-blindapp-primary/20 focus:border-blindapp-primary"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -101,7 +104,7 @@ const LoginForm = () => {
                 <Input
                   id="password"
                   type="password"
-                  className="pl-10"
+                  className="pl-10 border-blindapp-primary/20 focus:border-blindapp-primary"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -111,7 +114,7 @@ const LoginForm = () => {
             
             <Button 
               type="submit" 
-              className="w-full bg-blindapp-primary hover:bg-blindapp-primary/90"
+              className="w-full bg-gradient-to-r from-blindapp-primary to-blindapp-accent hover:opacity-90 transition-opacity shadow-md hover:shadow-lg"
               disabled={isLoading}
             >
               {isLoading ? "Logging in..." : "Login"}
