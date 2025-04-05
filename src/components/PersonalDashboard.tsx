@@ -3,8 +3,23 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/context/AuthContext';
-import { AlertCircle, Battery, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { AlertCircle, Battery, MapPin, ChevronDown, ChevronUp, Activity, Clock } from 'lucide-react';
+import { ChartContainer } from "@/components/ui/chart";
+import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import LocationView from './LocationView';
+
+// Mock data for activity chart
+const activityData = [
+  { time: '9AM', steps: 120, distance: 0.1 },
+  { time: '10AM', steps: 400, distance: 0.3 },
+  { time: '11AM', steps: 650, distance: 0.5 },
+  { time: '12PM', steps: 320, distance: 0.25 },
+  { time: '1PM', steps: 230, distance: 0.2 },
+  { time: '2PM', steps: 550, distance: 0.4 },
+  { time: '3PM', steps: 420, distance: 0.35 },
+  { time: '4PM', steps: 380, distance: 0.3 },
+  { time: '5PM', steps: 290, distance: 0.25 },
+];
 
 const BatteryCard = () => {
   const batteryLevel = 78; // Mock battery level
@@ -14,7 +29,7 @@ const BatteryCard = () => {
       <CardContent className="p-6">
         <div className="flex items-center gap-4">
           <Battery className="h-12 w-12 text-blindapp-success" />
-          <div>
+          <div className="w-full">
             <h3 className="text-xl font-semibold">Battery</h3>
             <div className="w-full bg-gray-200 rounded-full h-4 mt-2">
               <div 
@@ -32,14 +47,99 @@ const BatteryCard = () => {
   );
 };
 
-const LocationButton = () => {
+const ActivityCard = () => {
   return (
     <Card className="blindapp-card">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-xl flex items-center gap-2">
+          <Activity className="h-5 w-5 text-blindapp-primary" />
+          Daily Activity
+        </CardTitle>
+      </CardHeader>
       <CardContent className="p-6">
-        <Button className="w-full flex items-center gap-2 py-6 bg-blindapp-secondary hover:bg-blindapp-secondary/90">
-          <MapPin className="h-6 w-6" />
-          <span className="text-lg">View Live Location</span>
-        </Button>
+        <div className="h-64">
+          <ChartContainer 
+            config={{
+              steps: { color: "#2563eb" },
+              distance: { color: "#8b5cf6" }
+            }}
+          >
+            <AreaChart data={activityData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorSteps" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#2563eb" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#2563eb" stopOpacity={0.1}/>
+                </linearGradient>
+                <linearGradient id="colorDistance" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200" />
+              <XAxis dataKey="time" />
+              <YAxis />
+              <Tooltip />
+              <Area type="monotone" dataKey="steps" stroke="#2563eb" fill="url(#colorSteps)" />
+              <Area type="monotone" dataKey="distance" stroke="#8b5cf6" fill="url(#colorDistance)" />
+            </AreaChart>
+          </ChartContainer>
+        </div>
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="bg-blue-50 p-3 rounded-lg text-center">
+            <p className="text-lg font-bold text-blue-600">3,360</p>
+            <p className="text-sm text-blue-700">Steps Today</p>
+          </div>
+          <div className="bg-purple-50 p-3 rounded-lg text-center">
+            <p className="text-lg font-bold text-purple-600">2.65 km</p>
+            <p className="text-sm text-purple-700">Distance Today</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const UsageTimeCard = () => {
+  return (
+    <Card className="blindapp-card">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-xl flex items-center gap-2">
+          <Clock className="h-5 w-5 text-blindapp-secondary" />
+          Usage Time
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-center mb-4">
+          <div className="text-center">
+            <p className="text-3xl font-bold text-blindapp-secondary">8h 45m</p>
+            <p className="text-sm text-muted-foreground">Total today</p>
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <span className="text-sm">Morning</span>
+            <div className="w-2/3 bg-gray-200 rounded-full h-2.5">
+              <div className="bg-blindapp-secondary h-2.5 rounded-full" style={{ width: '40%' }}></div>
+            </div>
+            <span className="text-sm font-medium">3h 20m</span>
+          </div>
+          
+          <div className="flex justify-between items-center">
+            <span className="text-sm">Afternoon</span>
+            <div className="w-2/3 bg-gray-200 rounded-full h-2.5">
+              <div className="bg-blindapp-secondary h-2.5 rounded-full" style={{ width: '35%' }}></div>
+            </div>
+            <span className="text-sm font-medium">2h 55m</span>
+          </div>
+          
+          <div className="flex justify-between items-center">
+            <span className="text-sm">Evening</span>
+            <div className="w-2/3 bg-gray-200 rounded-full h-2.5">
+              <div className="bg-blindapp-secondary h-2.5 rounded-full" style={{ width: '30%' }}></div>
+            </div>
+            <span className="text-sm font-medium">2h 30m</span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
@@ -115,8 +215,12 @@ const PersonalDashboard = () => {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Main Dashboard</h2>
-      <BatteryCard />
-      <LocationButton />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <BatteryCard />
+        <UsageTimeCard />
+      </div>
+      <ActivityCard />
+      <LocationView />
       <EmergencyAlerts />
     </div>
   );
