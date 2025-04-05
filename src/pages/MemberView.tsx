@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +11,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChartContainer } from "@/components/ui/chart";
 import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import DocumentShare from '@/components/DocumentShare';
 
 // Mock data for activity chart
 const activityData = [
@@ -254,6 +254,22 @@ const EmergencyAlerts = () => {
 };
 
 const DocumentsSection = () => {
+  const [isUploading, setIsUploading] = useState(false);
+  
+  // Mock documents data
+  const documents = [
+    { id: 1, name: 'Medical Report.pdf', uploadDate: '2 weeks ago' },
+    { id: 2, name: 'ID Card.jpg', uploadDate: '1 month ago' },
+    { id: 3, name: 'Prescription.pdf', uploadDate: '3 days ago' },
+    { id: 4, name: 'Insurance Card.pdf', uploadDate: '2 months ago' },
+  ];
+  
+  const handleUpload = () => {
+    setIsUploading(true);
+    // Simulate upload delay
+    setTimeout(() => setIsUploading(false), 1500);
+  };
+  
   return (
     <Card className="blindapp-card">
       <CardHeader className="pb-2">
@@ -264,28 +280,42 @@ const DocumentsSection = () => {
       </CardHeader>
       <CardContent className="p-6">
         <div className="space-y-4">
-          <div className="p-3 bg-blindapp-muted rounded-lg border border-gray-200 flex justify-between items-center">
-            <div>
-              <h4 className="font-medium">Medical Report.pdf</h4>
-              <p className="text-xs text-muted-foreground">Uploaded 2 weeks ago</p>
+          {documents.map((doc) => (
+            <div 
+              key={doc.id} 
+              className="p-3 bg-blindapp-muted rounded-lg border border-gray-200 flex justify-between items-center hover:bg-blindapp-muted/80 transition-colors"
+            >
+              <div>
+                <h4 className="font-medium">{doc.name}</h4>
+                <p className="text-xs text-muted-foreground">Uploaded {doc.uploadDate}</p>
+              </div>
+              <div className="flex items-center">
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className="text-blindapp-primary"
+                  onClick={() => window.open('#', '_blank')}
+                >
+                  <FileText className="h-4 w-4" />
+                </Button>
+                <DocumentShare documentName={doc.name} />
+              </div>
             </div>
-            <Button size="sm" variant="ghost" className="text-blindapp-primary">
-              <Share2 className="h-4 w-4" />
-            </Button>
-          </div>
+          ))}
           
-          <div className="p-3 bg-blindapp-muted rounded-lg border border-gray-200 flex justify-between items-center">
-            <div>
-              <h4 className="font-medium">ID Card.jpg</h4>
-              <p className="text-xs text-muted-foreground">Uploaded 1 month ago</p>
-            </div>
-            <Button size="sm" variant="ghost" className="text-blindapp-primary">
-              <Share2 className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          <Button className="w-full">
-            Upload New Document
+          <Button 
+            className="w-full"
+            onClick={handleUpload}
+            disabled={isUploading}
+          >
+            {isUploading ? (
+              <>
+                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                Uploading...
+              </>
+            ) : (
+              'Upload New Document'
+            )}
           </Button>
         </div>
       </CardContent>
