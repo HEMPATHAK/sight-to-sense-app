@@ -50,9 +50,9 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left side: Back button area */}
-      <div className="w-1/3 bg-gray-50 p-6">
+    <div className="min-h-screen flex flex-col md:flex-row">
+      {/* Back button area, now at the top on mobile and left on desktop */}
+      <div className="w-full md:w-1/4 bg-gray-50 p-6">
         <Button 
           variant="ghost" 
           className="flex items-center gap-2"
@@ -63,9 +63,9 @@ const LoginForm = () => {
         </Button>
       </div>
       
-      {/* Right side: Login card centered */}
-      <div className="w-2/3 flex justify-center items-center bg-gradient-to-br from-white to-blindapp-soft">
-        <Card className="w-[450px] shadow-lg border-0 bg-gradient-to-br from-white to-purple-50">
+      {/* Login card centered in the remaining space */}
+      <div className="w-full md:w-3/4 flex justify-center items-center bg-gradient-to-br from-white to-blindapp-soft p-4 md:p-0">
+        <Card className="w-full max-w-[450px] shadow-lg border-0 bg-gradient-to-br from-white to-purple-50">
           <CardHeader className="space-y-2 text-center">
             <div className="mx-auto mb-2">
               <ShieldIcon className="h-16 w-16 text-blindapp-primary" />
