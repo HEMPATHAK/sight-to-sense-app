@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
   Search, Plus, ChevronRight, UserIcon, 
-  Users, Map, BatteryWarning, Activity, Filter, SlidersHorizontal
+  Users, Map, BatteryWarning, Activity, Filter, SlidersHorizontal, AlertCircle
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChartContainer } from "@/components/ui/chart";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
+import { useAuth } from '@/context/AuthContext';
 
 interface Member {
   id: string;
@@ -29,14 +29,12 @@ interface Member {
   alerts: number;
 }
 
-// Mock statistics data
 const statisticsData = [
   { name: 'Active', value: 12, color: '#16a34a' },
   { name: 'Away', value: 4, color: '#ca8a04' },
   { name: 'Offline', value: 3, color: '#6b7280' },
 ];
 
-// Mock alerts data
 const alertsData = [
   { type: 'Battery', count: 3, color: '#dc2626' },
   { type: 'Fall', count: 1, color: '#ea580c' },
@@ -118,7 +116,6 @@ const NgoMemberList = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Mock member data with enhanced information
   const members: Member[] = [
     { 
       id: '1', 
@@ -177,7 +174,6 @@ const NgoMemberList = () => {
     },
   ];
 
-  // Filter members based on search query
   const filteredMembers = members.filter(member => 
     member.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
