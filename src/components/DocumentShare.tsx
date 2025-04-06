@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Share2, WhatsApp, X } from 'lucide-react';
+import { Mail, Share2, MessageSquare, X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -109,7 +109,7 @@ const DocumentShare = ({ documentName }: DocumentShareProps) => {
             <div className="rounded-lg border p-4 bg-white">
               <div className="flex items-center gap-2 mb-3">
                 <div className="bg-green-100 p-2 rounded-full">
-                  <WhatsApp className="h-4 w-4 text-green-600" />
+                  <MessageSquare className="h-4 w-4 text-green-600" />
                 </div>
                 <h3 className="font-medium">WhatsApp</h3>
               </div>
