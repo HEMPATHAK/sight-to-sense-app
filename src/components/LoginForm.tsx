@@ -7,26 +7,25 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from '@/context/AuthContext';
-import { ArrowLeft, LockIcon, MailIcon, ShieldIcon } from 'lucide-react';
+import { ArrowLeft, LockIcon, MailIcon, ShieldIcon, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
-  const { login, selectedMode } = useAuth();
+  const { login, selectedMode, authStatus } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
     if (!email || !password) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
+      setError("Please fill in all fields");
       return;
     }
     
@@ -39,6 +38,7 @@ const LoginForm = () => {
       });
       navigate('/dashboard');
     } catch (error) {
+      setError(error instanceof Error ? error.message : "Something went wrong");
       toast({
         title: "Login failed",
         description: error instanceof Error ? error.message : "Something went wrong",
@@ -79,6 +79,12 @@ const LoginForm = () => {
           </CardHeader>
           
           <CardContent>
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-700 font-medium">Email</Label>
@@ -119,9 +125,14 @@ const LoginForm = () => {
               <Button 
                 type="submit" 
                 className="w-full h-12 bg-blindapp-primary hover:bg-opacity-90 transition-opacity"
-                disabled={isLoading}
+                disabled={isLoading || authStatus === 'loading'}
               >
-                {isLoading ? "Logging in..." : "Login"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Logging in...
+                  </>
+                ) : "Login"}
               </Button>
             </form>
           </CardContent>

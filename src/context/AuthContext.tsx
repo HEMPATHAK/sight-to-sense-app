@@ -1,5 +1,14 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  User as FirebaseUser
+} from 'firebase/auth';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 
 // Define types for our context
 type UserMode = 'personal' | 'ngo';
@@ -50,102 +59,166 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserData | null>(null);
   const [authStatus, setAuthStatus] = useState<AuthStatus>('loading');
   const [selectedMode, setSelectedMode] = useState<UserMode | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
 
-  // Mock authentication for prototype
+  // Listen for Firebase auth state changes
   useEffect(() => {
-    // Check if there's a user in localStorage (simulating persistence)
-    const storedUser = localStorage.getItem('blindapp_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      setAuthStatus('authenticated');
-    } else {
-      setAuthStatus('unauthenticated');
-    }
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setFirebaseUser(user);
+      
+      if (user) {
+        try {
+          // Get user data from Firestore
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          
+          if (userDoc.exists()) {
+            const userData = userDoc.data() as UserData;
+            setUser({
+              ...userData,
+              id: user.uid,
+              email: user.email || userData.email
+            });
+            // Set mode from user data
+            if (userData.mode) {
+              setSelectedMode(userData.mode);
+            }
+            setAuthStatus('authenticated');
+          } else {
+            // User exists in Auth but not in Firestore
+            setAuthStatus('unauthenticated');
+            await signOut(auth);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          setAuthStatus('unauthenticated');
+        }
+      } else {
+        setUser(null);
+        setAuthStatus('unauthenticated');
+      }
+    });
+
+    // Cleanup subscription
+    return () => unsubscribe();
   }, []);
 
-  // Mock login function
+  // Firebase login function
   const login = async (email: string, password: string) => {
-    // Simulate API call
     setAuthStatus('loading');
     
     try {
-      // This would be a real API call in production
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Sign in with Firebase
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
       
-      // For prototype, we'll just set a fake user based on the selected mode
-      const mockUser: UserData = {
-        id: '123',
-        email,
-        name: selectedMode === 'personal' ? 'John Doe' : 'Vision NGO',
-        mode: selectedMode || 'personal',
-        ...(selectedMode === 'personal' 
-          ? {
-              age: 42,
-              gender: 'Male',
-              stickSIM: 'SIM123456789',
-              caretakerNumber: '+1234567890'
-            } 
-          : {
-              ngoName: 'Vision NGO',
-              ngoEmail: email,
-              ngoMobile: '+9876543210'
-            }
-        )
-      };
+      // Get user data from Firestore
+      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
       
-      setUser(mockUser);
-      localStorage.setItem('blindapp_user', JSON.stringify(mockUser));
-      setAuthStatus('authenticated');
-    } catch (error) {
+      if (userDoc.exists()) {
+        const userData = userDoc.data() as UserData;
+        
+        // Ensure the user is logging into the correct mode
+        if (userData.mode !== selectedMode) {
+          await signOut(auth);
+          throw new Error(`This account is registered as ${userData.mode} mode. Please select the correct mode.`);
+        }
+        
+        setUser({
+          ...userData,
+          id: firebaseUser.uid,
+          email: firebaseUser.email || userData.email
+        });
+        setAuthStatus('authenticated');
+      } else {
+        // User exists in Auth but not in Firestore
+        await signOut(auth);
+        throw new Error("User data not found. Please register again.");
+      }
+    } catch (error: any) {
       console.error('Login failed:', error);
       setAuthStatus('unauthenticated');
-      throw new Error('Login failed. Please check your credentials.');
+      
+      // Handle Firebase specific errors with user-friendly messages
+      if (error.code === 'auth/invalid-credential') {
+        throw new Error('Invalid email or password. Please try again.');
+      } else if (error.code === 'auth/too-many-requests') {
+        throw new Error('Too many failed login attempts. Please try again later.');
+      } else if (error.message) {
+        throw new Error(error.message);
+      } else {
+        throw new Error('Login failed. Please check your credentials.');
+      }
     }
   };
 
-  // Mock register function
+  // Firebase register function
   const register = async (userData: Partial<UserData>, password: string) => {
     setAuthStatus('loading');
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!userData.email) throw new Error("Email is required");
       
+      // Create user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(
+        auth, 
+        userData.email, 
+        password
+      );
+      const firebaseUser = userCredential.user;
+      
+      // Create user document in Firestore
       const newUser: UserData = {
-        id: Math.random().toString(36).substring(2, 9),
-        email: userData.email || '',
+        id: firebaseUser.uid,
+        email: userData.email,
         name: userData.name || '',
         mode: selectedMode || 'personal',
         ...userData
       };
       
+      // Save user data to Firestore
+      await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
+      
       setUser(newUser);
-      localStorage.setItem('blindapp_user', JSON.stringify(newUser));
       setAuthStatus('authenticated');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration failed:', error);
       setAuthStatus('unauthenticated');
-      throw new Error('Registration failed. Please try again.');
+      
+      // Handle Firebase specific errors
+      if (error.code === 'auth/email-already-in-use') {
+        throw new Error('Email is already in use. Please use a different email or login.');
+      } else if (error.code === 'auth/weak-password') {
+        throw new Error('Password is too weak. Please use a stronger password.');
+      } else if (error.message) {
+        throw new Error(error.message);
+      } else {
+        throw new Error('Registration failed. Please try again.');
+      }
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('blindapp_user');
-    setAuthStatus('unauthenticated');
-    setSelectedMode(null);
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+      setAuthStatus('unauthenticated');
+      setSelectedMode(null);
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   const updateProfile = async (data: Partial<UserData>) => {
-    if (!user) throw new Error('No user logged in');
+    if (!user || !firebaseUser) throw new Error('No user logged in');
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Update user document in Firestore
+      const userRef = doc(db, 'users', firebaseUser.uid);
+      await updateDoc(userRef, data);
       
+      // Update local state
       const updatedUser = { ...user, ...data };
       setUser(updatedUser);
-      localStorage.setItem('blindapp_user', JSON.stringify(updatedUser));
       
       return Promise.resolve();
     } catch (error) {
