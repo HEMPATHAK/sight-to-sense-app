@@ -2,6 +2,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
+import { getDatabase } from 'firebase/database';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -10,15 +11,17 @@ const firebaseConfig = {
   projectId: "smart-blind-stick-app",
   storageBucket: "smart-blind-stick-app.appspot.com",
   messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abc123def456ghi789jkl"
+  appId: "1:123456789012:web:abc123def456ghi789jkl",
+  databaseURL: "https://smart-blind-stick-app-default-rtdb.firebaseio.com" // Add your database URL here
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const rtdb = getDatabase(app); // Initialize and export Realtime Database
 
-// Enable persistence to allow offline capabilities
+// Enable persistence to allow offline capabilities for Firestore
 // This is important for a mobile-focused application
 try {
   enableIndexedDbPersistence(db)
