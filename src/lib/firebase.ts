@@ -1,7 +1,7 @@
 
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -20,8 +20,7 @@ export const db = getFirestore(app);
 
 // Enable persistence to allow offline capabilities
 // This is important for a mobile-focused application
-getFirestore(app)
-  .enablePersistence({ synchronizeTabs: true })
+enableIndexedDbPersistence(db)
   .catch((err) => {
     if (err.code === 'failed-precondition') {
       // Multiple tabs open, persistence can only be enabled in one tab at a time
