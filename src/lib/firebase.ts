@@ -5,7 +5,7 @@ import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBk9qvWEKmMTKU-pLUvT9BKxq9B4Ey8Gxw",
+  apiKey: "AIzaSyAiSnsvA3tO2ohqIEdxa5EnX0Pj7Fh60tw",
   authDomain: "smart-blind-stick-app.firebaseapp.com",
   projectId: "smart-blind-stick-app",
   storageBucket: "smart-blind-stick-app.appspot.com",
